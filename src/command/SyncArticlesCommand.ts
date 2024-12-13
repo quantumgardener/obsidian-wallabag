@@ -25,7 +25,6 @@ export default class SyncArticlesCommand implements Command {
   }
 
   private async writeSynced(ids: number[]): Promise<void> {
-    console.log(ids);
     return await this.plugin.app.vault.adapter.write(this.syncedFilePath, JSON.stringify(ids));
   }
 

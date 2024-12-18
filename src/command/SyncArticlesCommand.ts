@@ -30,7 +30,7 @@ export default class SyncArticlesCommand implements Command {
 
   private async getUserTemplate(): Promise<NoteTemplate> {
     const template = await this.plugin.app.vault.adapter.read(`${this.plugin.settings.articleTemplate}.md`);
-    return new NoteTemplate(template);
+    return new NoteTemplate(template, this.plugin);
   }
 
   private getFolder(wallabagArticle: WallabagArticle): string {
@@ -84,7 +84,7 @@ export default class SyncArticlesCommand implements Command {
         .map(async (article) => {
           const folder = this.getFolder(article);
           if (this.plugin.settings.downloadAsPDF !== 'true') {
-            const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate : await this.getUserTemplate();
+            const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate(this.plugin) : await this.getUserTemplate();
             const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
             const content = template.fill(
               article,
@@ -98,7 +98,7 @@ export default class SyncArticlesCommand implements Command {
             const pdf = await this.plugin.api.exportArticle(article.id);
             await this.plugin.app.vault.adapter.writeBinary(pdfFilename, pdf);
             if (this.plugin.settings.createPDFNote) {
-              const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate : await this.getUserTemplate();
+              const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate(this.plugin) : await this.getUserTemplate();
               const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
               const content = template.fill(article, this.plugin.settings.serverUrl, this.plugin.settings.tagFormat, pdfFilename);
               await this.createNoteIfNotExists(filename, content);

@@ -164,6 +164,23 @@ export class WallabagSettingTab extends PluginSettingTab {
         });
       });
 
+
+    new Setting(this.containerEl)
+      .setName('Link Published By')
+      .setDesc(
+        sanitizeHTMLToDom(
+          'Add [[ ]] around each author\'s name to allow linking from Obsidian Properties. <br/>' +
+          'e.g. [[Brandon Sanderson]] (on) or Brandon Sanderson (off)'
+        )
+      )
+      .addToggle(async (toggle) => {
+        toggle.setValue(this.plugin.settings.linkPublishedBy === 'true');
+        toggle.onChange(async (value) => {
+          this.plugin.settings.linkPublishedBy = String(value);
+          await this.plugin.saveSettings();
+        });
+      });
+
     this.containerEl.createEl('h2', { text: 'Export as PDF' });
 
     new Setting(this.containerEl)

@@ -15,6 +15,7 @@ export interface WallabagSettings {
   tagFormat: string;
   unreadFolder: string;
   archivedFolder: string;
+  syncedArticles: string;
 }
 
 export const DEFAULT_SETTINGS: WallabagSettings = {
@@ -34,4 +35,5 @@ export const DEFAULT_SETTINGS: WallabagSettings = {
   tagFormat: 'csv',
   unreadFolder: '',
   archivedFolder: '',
+  syncedArticles: '[]'
 };

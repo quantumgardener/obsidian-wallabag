@@ -91,5 +91,5 @@ annotation-target: {{pdf_link}}
 
 Relative to `[VAULT]/.obsidian/plugins/obsidian-wallabag`:
 
-- `.synced`: List of all id's that have already been downloaded. Plugin will not attempt to download these articles again until cleared.
+- `data.json`: List of all id's that have already been downloaded plus other configuration items. Syncs via [Obisidan Sync](https://obsidian.md/sync) if enabled.
 - `.__wallabag_token__`: Authentication credentials for Wallabag.

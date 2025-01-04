@@ -6,16 +6,15 @@ export default class ClearSyncedArticlesCacheCommand implements Command {
   name = 'Clear synced articles cache';
 
   private plugin: WallabagPlugin;
-  private syncedFilePath: string;
 
   constructor(plugin: WallabagPlugin) {
     this.plugin = plugin;
-    this.syncedFilePath = `${this.plugin.manifest.dir}/.synced`;
   }
 
   async callback() {
     const notice = new Notice('Clearing synced articles cache.');
-    await this.plugin.app.vault.adapter.write(this.syncedFilePath, JSON.stringify([]));
+    this.plugin.settings.syncedArticles = '[]';
+    await this.plugin.saveSettings();
     notice.hide();
     new Notice('Synced articles cache is cleared.');
   }

@@ -16,16 +16,35 @@ export default class SyncArticlesCommand implements Command {
   }
 
   private async readSynced(): Promise<number[]> {
+    // Force a reading of the settings file again. It will have been read when the plugin
+    // first loaded. But the sync of data.json from Obsidian sync is likely to occur after that.
+    await this.plugin.loadSettings();
+    let syncedArticles = JSON.parse(this.plugin.settings.syncedArticles);
+
+    // Check if the old file containing a list of synced article IDs still exists. We need to integrate
+    // it into the new plugin settings value and clean up.
     const exists = await this.plugin.app.vault.adapter.exists(this.syncedFilePath);
     if (exists) {
-      return await this.plugin.app.vault.adapter.read(this.syncedFilePath).then(JSON.parse);
-    } else {
-      return [];
+      // Read the contents of the file. The form is [id,id,id,...]
+      console.log(`[Wallabag] ${this.syncedFilePath} found. Embedding into data.json and deleting.`);
+      const previouslySynced = await this.plugin.app.vault.adapter.read(this.syncedFilePath).then(JSON.parse);
+
+      // Add each id from the old file to the current list of synced articles. Use a set to ensure uniqueness
+      const uniqueids = new Set(syncedArticles);
+      previouslySynced.forEach((id:string) => {
+        uniqueids.add(id);
+      });
+      syncedArticles = Array.from(uniqueids); //convert Set back to Array
+
+      // Remove the file as it is no longer required
+      await this.plugin.app.vault.adapter.remove(normalizePath(this.syncedFilePath));
     }
+    return syncedArticles;
   }
 
   private async writeSynced(ids: number[]): Promise<void> {
-    return await this.plugin.app.vault.adapter.write(this.syncedFilePath, JSON.stringify(ids));
+    this.plugin.settings.syncedArticles = JSON.stringify(ids);
+    return await this.plugin.saveSettings();
   }
 
   private async getUserTemplate(): Promise<NoteTemplate> {

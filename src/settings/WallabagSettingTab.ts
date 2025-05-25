@@ -240,9 +240,15 @@ export class WallabagSettingTab extends PluginSettingTab {
   };
 
   private updateSetting =
-    (key: keyof WallabagSettings): ((v: string) => void) =>
-      async (v: string) => {
-        this.plugin.settings[key] = v;
+    (key: keyof WallabagSettings): ((v: string | number[]) => void) =>
+      async (v: string | number[]) => {
+        if (typeof v === 'string') {
+          this.plugin.settings[key] = v as string;
+        } else if (Array.isArray(v) && v.every(item => typeof item === 'number')) {
+          this.plugin.settings[key] = JSON.stringify(v);
+        } else {
+          throw new Error('Invalid type: Only strings or arrays of numbers are expected');
+        }
         await this.plugin.saveSettings();
       };
 

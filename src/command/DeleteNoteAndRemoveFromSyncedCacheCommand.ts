@@ -6,11 +6,9 @@ export default class DeleteNoteAndRemoveFromSyncedCacheCommand implements Comman
   name = 'Delete note and remove it from synced articles cache';
 
   private plugin: WallabagPlugin;
-  private syncedFilePath: string;
 
   constructor(plugin: WallabagPlugin) {
     this.plugin = plugin;
-    this.syncedFilePath = `${this.plugin.manifest.dir}/.synced`;
   }
 
   async callback() {
@@ -33,17 +31,14 @@ export default class DeleteNoteAndRemoveFromSyncedCacheCommand implements Comman
       }
 
       // Remove current ID from .synced file.
-      const exists = await this.plugin.app.vault.adapter.exists(this.syncedFilePath);
-      if (exists) {
-        const syncedIds = await this.plugin.app.vault.adapter.read(this.syncedFilePath).then(JSON.parse);
-        syncedIds.forEach((item: number, index: number) => {
-          if (item === wallabag_id) {
-            syncedIds.splice(index, 1);
-          }
-        });
-        await this.plugin.app.vault.adapter.write(this.syncedFilePath, JSON.stringify(syncedIds));
-      }
-
+      const syncedIds = JSON.parse(this.plugin.settings.syncedArticles);
+      syncedIds.forEach((item: number, index: number) => {
+        if (item === wallabag_id) {
+          syncedIds.splice(index, 1);
+        }
+      });
+      this.plugin.settings.syncedArticles = JSON.stringify(syncedIds);
+      await this.plugin.saveSettings();
       await this.plugin.app.vault.trash(currentNote, false);
       new Notice('Note is moved to trash and removed from synced articles cache.');
     } else {

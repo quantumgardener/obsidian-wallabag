@@ -29,8 +29,19 @@ export default class SyncArticlesCommand implements Command {
   }
 
   private async getUserTemplate(): Promise<NoteTemplate> {
-    const template = await this.plugin.app.vault.adapter.read(`${this.plugin.settings.articleTemplate}.md`);
-    return new NoteTemplate(template, this.plugin);
+    try {
+      // Attempt to load user template file. The file name is typed, not selected so there is a chance
+      // that it does not exist, is mistyped, or has been renamed/moved.
+      const template = await this.plugin.app.vault.adapter.read(`${this.plugin.settings.articleTemplate}.md`);
+      return new NoteTemplate(template);
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        console.error('Unable to find Article note template file. Please check settings.');
+      } else {
+        console.error('An unknown error occurred loading the Article note template file. Please check settings.');
+      }
+      throw error;
+    }
   }
 
   private getFolder(wallabagArticle: WallabagArticle): string {
@@ -100,17 +111,38 @@ export default class SyncArticlesCommand implements Command {
             if (this.plugin.settings.createPDFNote) {
               const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate(this.plugin) : await this.getUserTemplate();
               const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
-              const content = template.fill(article, this.plugin.settings.serverUrl, this.plugin.settings.tagFormat, pdfFilename);
+              const content = template.fill(
+                article,
+                this.plugin.settings.serverUrl,
+                this.plugin.settings.convertHtmlToMarkdown,
+                this.plugin.settings.tagFormat
+              );
               await this.createNoteIfNotExists(filename, content);
+            } else {
+              const pdfFilename = normalizePath(`${this.plugin.settings.pdfFolder}/${this.getFilename(article)}.pdf`);
+              const pdf = await this.plugin.api.exportArticle(article.id);
+              await this.plugin.app.vault.adapter.writeBinary(pdfFilename, pdf);
+              if (this.plugin.settings.createPDFNote) {
+                const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate : await this.getUserTemplate();
+                const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
+                const content = template.fill(article, this.plugin.settings.serverUrl, this.plugin.settings.tagFormat, pdfFilename);
+                await this.createNoteIfNotExists(filename, content);
+              }
             }
-          }
-          if (this.plugin.settings.archiveAfterSync === 'true') {
-            await this.plugin.api.archiveArticle(article.id);
-          }
-          return article.id;
-        })
-    );
-    await this.writeSynced([...newIds, ...previouslySynced]);
-    fetchNotice.setMessage(sanitizeHTMLToDom(`Sync from Wallabag is now completed. <br> ${newIds.length} new article(s) has been synced.`));
+            if (this.plugin.settings.archiveAfterSync === 'true') {
+              await this.plugin.api.archiveArticle(article.id);
+            }
+            return article.id;
+          })
+      );
+      await this.writeSynced([...newIds, ...previouslySynced]);
+      fetchNotice.setMessage(sanitizeHTMLToDom(`Sync from Wallabag is now completed. <br> ${newIds.length} new article(s) has been synced.`));
+    } catch (error) {
+      if (error.code === 'ENOENT') {
+        new Notice('Unable to find Article note template file. Please check settings.', 5000);
+      } else {
+        new Notice('An unknown error occurred loading the Article note template file. Please check settings.', 5000);
+      }
+    }
   }
 }

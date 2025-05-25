@@ -89,14 +89,27 @@ export default class SyncArticlesCommand implements Command {
       this.plugin.settings.syncUnRead === 'true' ? true : false,
       this.plugin.settings.syncArchived === 'true' ? true : false
     );
-    try {
-      const newIds = await Promise.all(
-        articles
-          .filter((article) => !previouslySynced.contains(article.id))
-          .map(async (article) => {
-            const folder = this.getFolder(article);
-            if (this.plugin.settings.downloadAsPDF !== 'true') {
-              const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate : await this.getUserTemplate();
+    const newIds = await Promise.all(
+      articles
+        .filter((article) => !previouslySynced.contains(article.id))
+        .map(async (article) => {
+          const folder = this.getFolder(article);
+          if (this.plugin.settings.downloadAsPDF !== 'true') {
+            const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate(this.plugin) : await this.getUserTemplate();
+            const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
+            const content = template.fill(
+              article,
+              this.plugin.settings.serverUrl,
+              this.plugin.settings.convertHtmlToMarkdown,
+              this.plugin.settings.tagFormat
+            );
+            await this.createNoteIfNotExists(filename, content);
+          } else {
+            const pdfFilename = normalizePath(`${this.plugin.settings.pdfFolder}/${this.getFilename(article)}.pdf`);
+            const pdf = await this.plugin.api.exportArticle(article.id);
+            await this.plugin.app.vault.adapter.writeBinary(pdfFilename, pdf);
+            if (this.plugin.settings.createPDFNote) {
+              const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate(this.plugin) : await this.getUserTemplate();
               const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
               const content = template.fill(
                 article,

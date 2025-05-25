@@ -16,6 +16,7 @@ export interface WallabagSettings {
   unreadFolder: string;
   archivedFolder: string;
   syncedArticles: string;
+  linkPublishedBy: string;
 }
 
 export const DEFAULT_SETTINGS: WallabagSettings = {
@@ -36,4 +37,5 @@ export const DEFAULT_SETTINGS: WallabagSettings = {
   unreadFolder: '',
   archivedFolder: '',
   syncedArticles: '[]'
+  linkPublishedBy: 'true',
 };

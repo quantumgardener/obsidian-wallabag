@@ -1,16 +1,27 @@
+import WallabagPlugin from 'main';
 import { WallabagArticle } from 'wallabag/WallabagAPI';
 import { htmlToMarkdown } from 'obsidian';
 
 export default class NoteTemplate {
   content: string;
+  plugin: WallabagPlugin;
 
-  constructor(content: string) {
+  constructor(content: string, plugin:WallabagPlugin) {
     this.content = content;
+    this.plugin = plugin;
   }
 
   fill(wallabagArticle: WallabagArticle, serverBaseUrl: string, convertHtmlToMarkdown: string, tagFormat: string, pdfLink = ''): string {
     const content = wallabagArticle.content !== null ? wallabagArticle.content : '';
     const annotations = wallabagArticle.annotations.map((a) => '> ' + a.quote + (a.text ? '\n\n' + a.text : '')).join('\n\n');
+    const publishedBy = wallabagArticle.publishedBy // string property
+      .filter(pb => pb !== '') // Filter out unknown or unspecified authors
+      .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `"[[${pb}]]"` : `${pb}`)
+      .join(',');
+    const publishedByList = wallabagArticle.publishedBy // list property
+      .filter(pb => pb !== '') // Filter out unknown or unspecified authors
+      .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `  - "[[${pb}]]"` : `  - ${pb}`)
+      .join('\n');
     const variables: { [key: string]: string } = {
       '{{id}}': wallabagArticle.id.toString(),
       '{{article_title}}': wallabagArticle.title,
@@ -29,6 +40,10 @@ export default class NoteTemplate {
       '{{annotations}}': annotations,
       '{{is_archived}}': wallabagArticle.isArchived ? 'true' : 'false',
       '{{is_starred}}': wallabagArticle.isStarred ? 'true' : 'false',
+      '{{published_by}}': publishedBy,
+      '{{published_by_list}}' : publishedByList,
+      '{{authors}}' : publishedBy,
+      '{{authors_list}}' : publishedByList
     };
     let noteContent = this.content;
     Object.keys(variables).forEach((key) => {
@@ -49,10 +64,15 @@ export default class NoteTemplate {
   }
 }
 
-export const DefaultTemplate = new NoteTemplate(
-  '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\n{{content}}'
-);
-
-export const PDFTemplate = new NoteTemplate(
-  '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\nPDF: [[{{pdf_link}}]]'
-);
+export function DefaultTemplate(plugin: WallabagPlugin) {
+  return new NoteTemplate(
+    '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\n{{content}}',
+    plugin
+  );
+}
+export function PDFTemplate(plugin: WallabagPlugin) {
+  return new NoteTemplate(
+    '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\nPDF: [[{{pdf_link}}]]',
+    plugin
+  );
+}

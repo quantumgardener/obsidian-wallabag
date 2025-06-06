@@ -19,7 +19,7 @@ export interface WallabagSettings {
 }
 
 export const DEFAULT_SETTINGS: WallabagSettings = {
-  serverUrl: '',
+  serverUrl: 'https://app.wallabag.ixxt',
   tag: '',
   folder: '',
   downloadAsPDF: 'false',

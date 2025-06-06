@@ -1,5 +1,5 @@
 import WallabagPlugin from 'main';
-import { request, requestUrl, RequestUrlResponse } from 'obsidian';
+import { Notice, request, requestUrl, RequestUrlResponse } from 'obsidian';
 import { Token } from './WallabagAuth';
 
 interface WallabagAnnotation {
@@ -46,6 +46,10 @@ export default class WallabagAPI {
   }
 
   static async authenticate(serverUrl: string, clientId: string, clientSecret: string, username: string, password: string): Promise<Token> {
+
+    if (serverUrl.trim().length === 0 || !serverUrl) {
+      new Notice('Server URL is missing from settings.', 5000);
+    }
     const body = {
       grant_type: 'password',
       client_id: clientId,

@@ -14,14 +14,27 @@ export default class NoteTemplate {
   fill(wallabagArticle: WallabagArticle, serverBaseUrl: string, convertHtmlToMarkdown: string, tagFormat: string, pdfLink = ''): string {
     const content = wallabagArticle.content !== null ? wallabagArticle.content : '';
     const annotations = wallabagArticle.annotations.map((a) => '> ' + a.quote + (a.text ? '\n\n' + a.text : '')).join('\n\n');
-    const publishedBy = wallabagArticle.publishedBy // string property
-      .filter(pb => pb !== '') // Filter out unknown or unspecified authors
-      .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `"[[${pb}]]"` : `${pb}`)
-      .join(',');
-    const publishedByList = wallabagArticle.publishedBy // list property
-      .filter(pb => pb !== '') // Filter out unknown or unspecified authors
-      .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `  - "[[${pb}]]"` : `  - ${pb}`)
-      .join('\n');
+    console.log('a');
+    let publishedBy = '';
+    let publishedByList = '';
+    try {
+      publishedBy = wallabagArticle.publishedBy // string property
+        .filter(pb => pb !== '') // Filter out unknown or unspecified authors
+        .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `"[[${pb}]]"` : `${pb}`)
+        .join(',');
+    } catch (error) {
+      publishedBy = '';
+    }
+    try {
+      publishedByList = wallabagArticle.publishedBy // list property
+        .filter(pb => pb !== '') // Filter out unknown or unspecified authors
+        .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `  - "[[${pb}]]"` : `  - ${pb}`)
+        .join('\n');
+    } catch (error) {
+      publishedByList = '';
+    }
+    console.log(publishedBy);
+    console.log(publishedByList);
     const variables: { [key: string]: string } = {
       '{{id}}': wallabagArticle.id.toString(),
       '{{article_title}}': wallabagArticle.title,
@@ -64,13 +77,13 @@ export default class NoteTemplate {
   }
 }
 
-export function DefaultTemplate(plugin: WallabagPlugin) {
+export function DefaultTemplate(plugin: WallabagPlugin): NoteTemplate {
   return new NoteTemplate(
     '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\n{{content}}',
     plugin
   );
 }
-export function PDFTemplate(plugin: WallabagPlugin) {
+export function PDFTemplate(plugin: WallabagPlugin): NoteTemplate {
   return new NoteTemplate(
     '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\nPDF: [[{{pdf_link}}]]',
     plugin

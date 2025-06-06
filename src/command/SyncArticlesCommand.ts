@@ -52,14 +52,14 @@ export default class SyncArticlesCommand implements Command {
       // Attempt to load user template file. The file name is typed, not selected so there is a chance
       // that it does not exist, is mistyped, or has been renamed/moved.
       const template = await this.plugin.app.vault.adapter.read(`${this.plugin.settings.articleTemplate}.md`);
-      return new NoteTemplate(template);
+      return new NoteTemplate(template, this.plugin);
     } catch (error) {
       if (error.code === 'ENOENT') {
-        console.error('Unable to find Article note template file. Please check settings.');
+        console.error('Unable to find Article note template file at `{this.plugin.settings.articleTemplate}.md. Please check settings.');
       } else {
         console.error('An unknown error occurred loading the Article note template file. Please check settings.');
       }
-      throw error;
+      throw new Error('BAD_TEMPLATE');
     }
   }
 
@@ -114,17 +114,8 @@ export default class SyncArticlesCommand implements Command {
         .map(async (article) => {
           const folder = this.getFolder(article);
           if (this.plugin.settings.downloadAsPDF !== 'true') {
-            const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate(this.plugin) : await this.getUserTemplate();
-            const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
-            const content = template.fill(
-              article,
-              this.plugin.settings.serverUrl,
-              this.plugin.settings.convertHtmlToMarkdown,
-              this.plugin.settings.tagFormat
-            );
-            await this.createNoteIfNotExists(filename, content);
             try {
-              const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate : await this.getUserTemplate();
+              const template = this.plugin.settings.articleTemplate === '' ? DefaultTemplate(this.plugin) : await this.getUserTemplate();
               const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
               const content = template.fill(
                 article,
@@ -134,57 +125,30 @@ export default class SyncArticlesCommand implements Command {
               );
               await this.createNoteIfNotExists(filename, content);
             } catch (error) {
-              new Notice('Sync failed.\n\nTemplate can not be found. Check filename and folder. Do not include ".md" at end of filename.', 3000);
-              throw new Error('');
+              if (error.message === 'BAD_TEMPLATE') {
+                new Notice('Sync failed.\n\nTemplate could not be found.', 3000);
+              } else {
+                new Notice('Sync failed.\n\nAn unknown error occurred. Please check logs.', 3000);
+              }
+              throw new Error('Article sync aborted.');
             }
           } else {
             const pdfFilename = normalizePath(`${this.plugin.settings.pdfFolder}/${this.getFilename(article)}.pdf`);
             const pdf = await this.plugin.api.exportArticle(article.id);
             await this.plugin.app.vault.adapter.writeBinary(pdfFilename, pdf);
             if (this.plugin.settings.createPDFNote) {
-              const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate(this.plugin) : await this.getUserTemplate();
-              const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
-              const content = template.fill(
-                article,
-                this.plugin.settings.serverUrl,
-                this.plugin.settings.convertHtmlToMarkdown,
-                this.plugin.settings.tagFormat
-              );
-              await this.createNoteIfNotExists(filename, content);
-            } else {
-              const pdfFilename = normalizePath(`${this.plugin.settings.pdfFolder}/${this.getFilename(article)}.pdf`);
-              const pdf = await this.plugin.api.exportArticle(article.id);
-              await this.plugin.app.vault.adapter.writeBinary(pdfFilename, pdf);
-              if (this.plugin.settings.createPDFNote) {
-                const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate : await this.getUserTemplate();
-                const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
-                const content = template.fill(article, this.plugin.settings.serverUrl, this.plugin.settings.tagFormat, pdfFilename);
-                await this.createNoteIfNotExists(filename, content);
-              }
-            }
-            if (this.plugin.settings.archiveAfterSync === 'true') {
-              await this.plugin.api.archiveArticle(article.id);
-            }
-            return article.id;
-          })
-      );
-      await this.writeSynced([...newIds, ...previouslySynced]);
-      fetchNotice.setMessage(sanitizeHTMLToDom(`Sync from Wallabag is now completed. <br> ${newIds.length} new article(s) has been synced.`));
-    } catch (error) {
-      if (error.code === 'ENOENT') {
-        new Notice('Unable to find Article note template file. Please check settings.', 5000);
-      } else {
-        new Notice('An unknown error occurred loading the Article note template file. Please check settings.', 5000);
-      }
-    }
               try {
-                const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate : await this.getUserTemplate();
+                const template = this.plugin.settings.articleTemplate === '' ? PDFTemplate(this.plugin) : await this.getUserTemplate();
                 const filename = normalizePath(`${folder}/${this.getFilename(article)}.md`);
                 const content = template.fill(article, this.plugin.settings.serverUrl, this.plugin.settings.tagFormat, pdfFilename);
                 await this.createNoteIfNotExists(filename, content);
               } catch (error) {
-                new Notice('Sync failed.\n\nTemplate can not be found. Check filename and folder. Do not include ".md" at end of filename.', 3000);
-                throw new Error('');
+                if (error.message === 'BAD_TEMPLATE') {
+                  new Notice('Sync failed.\n\nTemplate could not be found.', 3000);
+                } else {
+                  new Notice('Sync failed.\n\nAn unknown error occurred. Please check logs.', 3000);
+                }
+                throw new Error('Article sync aborted.');
               }
             }
           }

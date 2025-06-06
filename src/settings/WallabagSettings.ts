@@ -36,6 +36,6 @@ export const DEFAULT_SETTINGS: WallabagSettings = {
   tagFormat: 'csv',
   unreadFolder: '',
   archivedFolder: '',
-  syncedArticles: '[]'
+  syncedArticles: '[]',
   linkPublishedBy: 'true',
 };

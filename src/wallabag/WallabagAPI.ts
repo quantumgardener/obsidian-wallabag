@@ -132,7 +132,11 @@ export default class WallabagAPI {
       method: method ? method : 'GET',
       body: body,
     }).catch(async (reason) => {
-      if (reason.status === 401) {
+      if (reason.message.includes('ERR_NAME_NOT_RESOLVED')) {
+        console.log(`DNS resolution failed. Invalid URL ${url} or network issue.`);
+        new Notice('Sync failed. Invalid Server URL or network issue.\n\nPlease check Server URL in settings.', 5000);
+        throw new Error('');
+      } else if (reason.status === 401) {
         console.log('Likely the token expired, refreshing it.');
         return await this.refresh()
           .then(async (token) => {

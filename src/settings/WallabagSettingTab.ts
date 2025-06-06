@@ -47,7 +47,7 @@ export class WallabagSettingTab extends PluginSettingTab {
           name: 'Article note template file',
           desc: sanitizeHTMLToDom(
             'The template file that will be used for the new articles.<br> ' +
-              'See <a href="https://github.com/huseyz/obsidian-wallabag">documentation</a> for examples.'
+              'See <a href="https://github.com/quantumgardener/obsidian-wallabag">documentation</a> for examples.'
           ),
           get: () => this.plugin.settings.articleTemplate,
           set: this.updateSetting('articleTemplate'),

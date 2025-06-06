@@ -28,6 +28,7 @@ export interface WallabagArticle {
   isArchived: boolean;
   isStarred: boolean;
   givenUrl: string;
+  publishedBy: string[];
 }
 
 export interface WallabagArticlesResponse {
@@ -110,7 +111,8 @@ export default class WallabagAPI {
       annotations: article['annotations'],
       isArchived: article['is_archived'],
       isStarred: article['is_starred'],
-      givenUrl: article['given_url']
+      givenUrl: article['given_url'],
+      publishedBy: article['published_by']
     };
   }
 

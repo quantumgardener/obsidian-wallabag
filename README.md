@@ -35,6 +35,7 @@ There are various settings under the plugin settings you can use to personalize 
 | Archive article after sync                             | If enabled the article will be archived after being synced.                                                         |
 | Add article ID in the title                            | If enabled the article ID will be added to title.                                                                   |
 | Tag format                                             | Determines how the tags will be populated in the created not. CSV(tag1, tag2) or hashtags(#tag1 #tag2)              |
+| Link Published By                                      | Determines if author names will be bracketed by `[[ ]]` and become Properties that will link to a note.              |
 
 ## Templating
 
@@ -42,7 +43,7 @@ By default this plugin offers two builtin templates; one for inserting the conte
 
 ![](screenshots/ss1.png)
 
-You can use a custom template, in that case plugin will pass the following variables.
+You can use a custom template, in that case plugin will pass the following variables. Within your template, surround each variable with `{{` and `}}`.
 | Variable | Description |
 |:----------------|:-------------------------------------------------------------------------------------------------------------------|
 | `id` | Wallabag ID of the article <sub><br>Add this to your notes frontmatter using the `wallabag_id` key to make use of the 'Delete note and remove it from synced articles cache' command. </sub> |
@@ -61,8 +62,21 @@ You can use a custom template, in that case plugin will pass the following varia
 | `domain_name` | Link to the source domain article |
 | `is_archived` | Whether the article is archived or not |
 | `is_starred` | Whether the article is starred or not |
+| `published_by` or `authors`| Display publishers/authors on a single line. |
+| `published_by_list` or `authors_list` | Display publishers/authors as a list. |
 
-I mainly use this plugin to export articles as pdfs and use [Annotator](https://github.com/elias-sundqvist/obsidian-annotator) to read using the following template.
+### Article title and punctuation
+Property values with `'`, `:` or `?` will confuse Obsidian's parsing of the YAML at the top of a note. Since titles often contain these characters you can avoid problems by wrapping your `article_title` with quotes.
+
+```
+---
+title: "{{article_title}}"
+---
+```
+
+### Annotating PDFs
+
+You can use the `pdf_link` tag with this plugin to export articles as pdfs and use [Annotator](https://github.com/elias-sundqvist/obsidian-annotator) to read using the following template.
 
 ```
 ---
@@ -70,9 +84,62 @@ annotation-target: {{pdf_link}}
 ---
 ```
 
+### Difference between *published_by* and *published_by_list*
+`published_by` will display all authors on a single line and `published_by_list` displays them as a list. The list format is more suitable for links from the Properties panel when paired with the `Link Published By` setting.
+
+If your template is:
+
+```
+---
+author: {{published_by}}
+---
+```
+
+your note will show:
+
+```
+---
+author: Stephen King, Brandon Sanderson
+---
+```
+
+Compare this to the list version and note how the template field is on the next line.
+
+```
+---
+author:
+{{published_by_list}}
+---
+```
+
+which generates
+
+```
+---
+author:
+  - Stephen King
+  - Brandon Sanderson
+---
+```
+
+The list format is best paired with `Link Published By` **enabled** to provide you with clickable links in the Properties tab.
+
+```
+---
+author:
+  - "[[Stephen King]]"
+  - "[[Brandon Sanderson]]"
+---
+```
+
+
+
 ![](screenshots/ss2.png)
 
 ## Installation
+
+### Within Obsidian
+Search for `Wallabag` in the list of Community Plugins and install as you would any other plugin.
 
 ### Manually
 

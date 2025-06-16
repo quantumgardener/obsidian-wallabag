@@ -5,6 +5,7 @@ This plugin for [Obsidian](https://obsidian.md) allows you to sync [Wallabag](ht
 The original developer of this plugin, [Huseyin Zengin](https://github.com/huseyz), archived the project on 7 February 2025. Several people, having seen that I contributed code asked if I was interested in picking up the project. For the sake of continuing it running, and having access to the plugin myself, I'm doing some **minimal** work on the project for now. Thank you to Huseyin Zengin and the other earlier contributors for the work done to date.
 
 > **Please note**
+> 
 > Please understand that when I don't have the time to read all the articles I have saved myself, let alone process them in [Obsidian](https://obsidian.md), it's difficult to find time to code. I will only be making the changes I feel are necessary. Pull requests etc. will be ignored. If you have changes, please fork into your own instance.
 
 ## Authentication

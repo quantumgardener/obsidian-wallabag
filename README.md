@@ -47,7 +47,7 @@ By default this plugin offers two builtin templates; one for inserting the conte
 You can use a custom template, in that case plugin will pass the following variables. Within your template, surround each variable with `{{` and `}}`.
 | Variable | Description |
 |:----------------|:-------------------------------------------------------------------------------------------------------------------|
-| `id` | Wallabag ID of the article <sub><br>Add this to your notes frontmatter using the `wallabag_id` key to make use of the 'Delete note and remove it from synced articles cache' command. </sub> |
+| `id` | Wallabag ID of the article <sub><br>Add this to your notes frontmatter properties using the `wallabag_id` key to make use of the 'Delete note and remove it from synced articles cache' command. The key defaults to `wallabag_id` but you can choose something else consistent with your property naming standard.</sub> |
 | `article_title` | Title of the article |
 | `original_link` | Link to the source article |
 | `given_url` | Given link to the source page |

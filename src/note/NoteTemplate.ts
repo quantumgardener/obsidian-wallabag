@@ -14,7 +14,6 @@ export default class NoteTemplate {
   fill(wallabagArticle: WallabagArticle, serverBaseUrl: string, convertHtmlToMarkdown: string, tagFormat: string, pdfLink = ''): string {
     const content = wallabagArticle.content !== null ? wallabagArticle.content : '';
     const annotations = wallabagArticle.annotations.map((a) => '> ' + a.quote + (a.text ? '\n\n' + a.text : '')).join('\n\n');
-    console.log('a');
     let publishedBy = '';
     let publishedByList = '';
     try {

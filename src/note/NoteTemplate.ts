@@ -32,8 +32,6 @@ export default class NoteTemplate {
     } catch (error) {
       publishedByList = '';
     }
-    console.log(publishedBy);
-    console.log(publishedByList);
     const variables: { [key: string]: string } = {
       '{{id}}': wallabagArticle.id.toString(),
       '{{article_title}}': wallabagArticle.title,

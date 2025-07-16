@@ -2,6 +2,7 @@ import WallabagPlugin from 'main';
 import { App, Notice, PluginSettingTab, sanitizeHTMLToDom, Setting } from 'obsidian';
 import WallabagAPI from 'wallabag/WallabagAPI';
 import { WallabagSettings } from './WallabagSettings';
+import { FileSuggest, FolderSuggest } from '../suggests/file-suggest';
 
 export interface TextSetting {
   name: string;
@@ -37,23 +38,36 @@ export class WallabagSettingTab extends PluginSettingTab {
           get: () => this.plugin.settings.tag,
           set: this.updateSetting('tag'),
         },
-        {
-          name: 'Wallabag article notes folder location',
-          desc: 'Choose the location where the synced article notes will be created.',
-          get: () => this.plugin.settings.folder,
-          set: this.updateSetting('folder'),
-        },
-        {
-          name: 'Article note template file',
-          desc: sanitizeHTMLToDom(
-            'The template file that will be used for the new articles.<br> ' +
-              'See <a href="https://github.com/quantumgardener/obsidian-wallabag">documentation</a> for examples.'
-          ),
-          get: () => this.plugin.settings.articleTemplate,
-          set: this.updateSetting('articleTemplate'),
-        },
       ] as TextSetting[]
     ).forEach(this.addTextSettingHere);
+
+    new Setting(this.containerEl)
+      .setName('Wallabag article notes folder location')
+      .setDesc('Choose the location where the synced article notes will be created.')
+      .addSearch((cb) => {
+        new FolderSuggest(this.app, cb.inputEl);
+        cb.setValue(this.plugin.settings.folder);
+        cb.onChange(async(newFolder) => {
+          this.plugin.settings.folder = newFolder;
+          await this.plugin.saveSettings();
+        });
+      });
+
+    new Setting(this.containerEl)
+      .setName('Article note template file')
+      .setDesc(sanitizeHTMLToDom(
+        'The template file that will be used for the new articles.<br> ' +
+        'See <a href="https://github.com/quantumgardener/obsidian-wallabag">documentation</a> for examples.'
+      ))
+      .addSearch((cb) => {
+        new FileSuggest(this.app, cb.inputEl);
+        cb.setValue(this.plugin.settings.articleTemplate);
+        cb.onChange(async(newFolder) => {
+          this.plugin.settings.articleTemplate = newFolder;
+          await this.plugin.saveSettings();
+        });
+      });
+
 
     this.containerEl.createEl('h2', { text: 'Sync Behavior' });
 
@@ -79,15 +93,20 @@ export class WallabagSettingTab extends PluginSettingTab {
         });
       });
 
-    this.addTextSettingHere({
-      name: 'Wallabag unread article notes folder location',
-      desc: sanitizeHTMLToDom(
+    new Setting(this.containerEl)
+      .setName('Wallabag unread article notes folder location')
+      .setDesc(sanitizeHTMLToDom(
         '(optional) Choose the location where the unread synced article notes will be created.<br>' +
           'If not specified, the article notes folder will be used.'
-      ),
-      get: () => this.plugin.settings.unreadFolder,
-      set: this.updateSetting('unreadFolder'),
-    });
+      ))
+      .addSearch((cb) => {
+        new FolderSuggest(this.app, cb.inputEl);
+        cb.setValue(this.plugin.settings.unreadFolder);
+        cb.onChange(async(newFolder) => {
+          this.plugin.settings.unreadFolder = newFolder;
+          await this.plugin.saveSettings();
+        });
+      });
 
     new Setting(this.containerEl)
       .setName('Sync archived articles')
@@ -100,15 +119,20 @@ export class WallabagSettingTab extends PluginSettingTab {
         });
       });
 
-    this.addTextSettingHere({
-      name: 'Wallabag archived article notes folder location',
-      desc: sanitizeHTMLToDom(
+    new Setting(this.containerEl)
+      .setName('Wallabag archived article notes folder location')
+      .setDesc(sanitizeHTMLToDom(
         '(optional) Choose the location where the archived synced article notes will be created.<br>' +
           'If not specified, the article notes folder will be used.'
-      ),
-      get: () => this.plugin.settings.archivedFolder,
-      set: this.updateSetting('archivedFolder'),
-    });
+      ))
+      .addSearch((cb) => {
+        new FolderSuggest(this.app, cb.inputEl);
+        cb.setValue(this.plugin.settings.archivedFolder);
+        cb.onChange(async(newFolder) => {
+          this.plugin.settings.archivedFolder = newFolder;
+          await this.plugin.saveSettings();
+        });
+      });
 
     new Setting(this.containerEl)
       .setName('Archive article after sync')
@@ -203,13 +227,18 @@ export class WallabagSettingTab extends PluginSettingTab {
 
     const pdfSettingsClass = this.plugin.settings.downloadAsPDF !== 'true' ? 'wallabag-setting-hidden' : 'wallabag-pdf-setting';
 
-    this.addTextSettingHere({
-      name: 'PDF Folder',
-      desc: 'The folder exported PDFs will be downloaded.',
-      get: () => this.plugin.settings.pdfFolder,
-      set: this.updateSetting('pdfFolder'),
-      class: pdfSettingsClass,
-    });
+    new Setting(this.containerEl)
+      .setName('PDF Folder')
+      .setDesc('The folder exported PDFs will be downloaded.')
+      .setClass(pdfSettingsClass)
+      .addSearch((cb) => {
+        new FolderSuggest(this.app, cb.inputEl);
+        cb.setValue(this.plugin.settings.pdfFolder);
+        cb.onChange(async(newFolder) => {
+          this.plugin.settings.pdfFolder = newFolder;
+          await this.plugin.saveSettings();
+        });
+      });
 
     new Setting(this.containerEl)
       .setName('Create note')

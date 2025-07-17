@@ -76,13 +76,13 @@ export default class NoteTemplate {
 
 export function DefaultTemplate(plugin: WallabagPlugin): NoteTemplate {
   return new NoteTemplate(
-    '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\n{{content}}',
+    '---\nwallabag_id: {{id}}\ntags: {{tags}}\n---\n ## {{article_title}} [original]({{original_link}}), [wallabag]({{wallabag_link}})\n{{content}}',
     plugin
   );
 }
 export function PDFTemplate(plugin: WallabagPlugin): NoteTemplate {
   return new NoteTemplate(
-    '---\ntags: {{tags}}\n---\n ## {{article_title}} []({{original_link}})[]({{wallabag_link}})\nPDF: [[{{pdf_link}}]]',
+    '---\nwallabag_id: {{id}}\ntags: {{tags}}\n---\n ## {{article_title}} [original]({{original_link}}), [wallabag]({{wallabag_link}})\nPDF: [[{{pdf_link}}]]',
     plugin
   );
 }

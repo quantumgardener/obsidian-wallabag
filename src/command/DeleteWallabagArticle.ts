@@ -3,9 +3,9 @@ import { Command, Notice, parseFrontMatterEntry, TFile } from 'obsidian';
 import { removeSyncedArticle } from './utils';
 
 
-export default class DeleteNoteAndRemoveFromSyncedCacheCommand implements Command {
-  id = 'delete-and-remove-from-synced-articles-cache';
-  name = 'Delete note and remove it from synced articles cache';
+export default class DeleteWallabagArticleCommand implements Command {
+  id = 'delete-article-from-wallabag';
+  name = 'Delete article from Wallabag';
 
   private plugin: WallabagPlugin;
 
@@ -14,7 +14,7 @@ export default class DeleteNoteAndRemoveFromSyncedCacheCommand implements Comman
   }
 
   async callback() {
-    const notice = new Notice('Delete note and remove it from synced articles cache.');
+    const notice = new Notice('Delete article from Wallabag.');
     const currentNote = this.plugin.app.workspace.getActiveFile();
     if (currentNote instanceof TFile) {
       // Get Wallabag ID from frontmatter in file.
@@ -33,10 +33,20 @@ export default class DeleteNoteAndRemoveFromSyncedCacheCommand implements Comman
         return;
       }
 
-      await removeSyncedArticle(wallabag_id, this.plugin);
+      try {
+        await this.plugin.api.deleteArticle(wallabag_id);
+        new Notice('Article has been deleted from Wallabag');
+        await removeSyncedArticle(wallabag_id, this.plugin);
+        const wallabagURLFieldName = this.plugin.settings.wallabagURLFieldName;
+        this.plugin.app.fileManager.processFrontMatter(currentNote, (frontmatter) => {
+          delete frontmatter[wallabagIDFieldName];
+          delete frontmatter[wallabagURLFieldName];
+        });
+      } catch (err) {
+        console.log(err);
+        new Notice(`Article was not deleted. Could not find article ${wallabag_id}`, 5000);
+      }
 
-      await this.plugin.app.vault.trash(currentNote, false);
-      new Notice('Note is moved to trash and removed from synced articles cache.');
     } else {
       new Notice('Error: Current item is not a note.');
     }

@@ -18,6 +18,7 @@ export interface WallabagSettings {
   syncedArticles: string;
   linkPublishedBy: string;
   wallabagIDFieldName: string;
+ wallabagURLFieldName: string;
 }
 
 export const DEFAULT_SETTINGS: WallabagSettings = {
@@ -39,5 +40,6 @@ export const DEFAULT_SETTINGS: WallabagSettings = {
   archivedFolder: '',
   syncedArticles: '[]',
   linkPublishedBy: 'true',
-  wallabagIDFieldName: 'wallabag_id'
+  wallabagIDFieldName: 'wallabag_id',
+  wallabagURLFieldName: 'wallabag_url'
 };

@@ -151,6 +151,9 @@ export default class WallabagAPI {
             await this.plugin.onTokenRefreshFailed();
             throw new Error('');
           });
+      } else if (reason.status === 404) {
+        console.log('Article not found');
+        throw new Error('404 error');
       } else {
         console.log(`Something else failed ${reason}`);
         throw new Error('');
@@ -196,5 +199,15 @@ export default class WallabagAPI {
   async archiveArticle(id: number) {
     const url = `${this.plugin.settings.serverUrl}/api/entries/${id}`;
     return this.tokenRefreshingFetch(url, 'PATCH', JSON.stringify({ archive: 1 }));
+  }
+
+  async deleteArticle(id: number) {
+    const url = `${this.plugin.settings.serverUrl}/api/entries/${id}`;
+    try {
+      return this.tokenRefreshingFetch(url, 'DELETE');
+    } catch (err) {
+      console.error(`Failed to delete article ${id}:`, err);
+      throw err;
+    }
   }
 }

@@ -51,11 +51,16 @@ export default class SyncArticlesCommand implements Command {
     try {
       // Attempt to load user template file. The file name is typed, not selected so there is a chance
       // that it does not exist, is mistyped, or has been renamed/moved.
-      const template = await this.plugin.app.vault.adapter.read(`${this.plugin.settings.articleTemplate}.md`);
+      let templateFileName = this.plugin.settings.articleTemplate;
+      if (templateFileName.slice(-3) !== '.md') {
+        // Assume extension missing, add it.
+        templateFileName = `${templateFileName}.md`;
+      }
+      const template = await this.plugin.app.vault.adapter.read(templateFileName);
       return new NoteTemplate(template, this.plugin);
     } catch (error) {
       if (error.code === 'ENOENT') {
-        console.error('Unable to find Article note template file at `{this.plugin.settings.articleTemplate}.md. Please check settings.');
+        console.error(`Unable to find Article note template file at "${this.plugin.settings.articleTemplate}.md". Please check settings.`);
       } else {
         console.error('An unknown error occurred loading the Article note template file. Please check settings.');
       }

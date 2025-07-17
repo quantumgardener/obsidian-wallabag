@@ -207,9 +207,16 @@ export class WallabagSettingTab extends PluginSettingTab {
 
     this.addTextSettingHere({
       name: 'Wallabag ID Property',
-      desc: 'The name of the property you use to store the Wallabag article ID. (Default: wallabag_id)',
+      desc: 'The name of the property you use to store the Wallabag article ID. Used for delete. (Default: wallabag_id)',
       get: () => this.plugin.settings.wallabagIDFieldName,
       set: this.updateSetting('wallabagIDFieldName')
+    });
+
+    this.addTextSettingHere({
+      name: 'Wallabag URL Property',
+      desc: 'The name of the property you use to store the Wallabag article URL (if in use by your template). Used for delete. (Default: wallabag_url)',
+      get: () => this.plugin.settings.wallabagURLFieldName,
+      set: this.updateSetting('wallabagURLFieldName')
     });
 
     this.containerEl.createEl('h2', { text: 'Export as PDF' });

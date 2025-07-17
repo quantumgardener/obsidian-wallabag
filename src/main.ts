@@ -1,4 +1,5 @@
 import DeleteNoteAndRemoveFromSyncedCacheCommand from 'command/DeleteNoteAndRemoveFromSyncedCacheCommand';
+import DeleteWallabagArticleCommand from 'command/DeleteWallabagArticle';
 import ClearSyncedArticlesCacheCommand from 'command/ResetSyncedArticlesCacheCommand';
 import SyncArticlesCommand from 'command/SyncArticlesCommand';
 import { Notice, Plugin } from 'obsidian';
@@ -6,6 +7,7 @@ import { WallabagSettingTab } from 'settings/WallabagSettingTab';
 import WallabagAPI from 'wallabag/WallabagAPI';
 import { loadTokenFromVault, removeTokenFromVault, storeTokenToVault, Token } from 'wallabag/WallabagAuth';
 import { DEFAULT_SETTINGS, WallabagSettings } from './settings/WallabagSettings';
+import DeleteEverywhereCommand from 'command/DeleteEverywhere';
 
 export default class WallabagPlugin extends Plugin {
   settings: WallabagSettings;
@@ -21,6 +23,8 @@ export default class WallabagPlugin extends Plugin {
     this.addCommand(syncArticlesCommand);
     this.addCommand(new ClearSyncedArticlesCacheCommand(this));
     this.addCommand(new DeleteNoteAndRemoveFromSyncedCacheCommand(this));
+    this.addCommand(new DeleteWallabagArticleCommand(this));
+    this.addCommand(new DeleteEverywhereCommand(this));
 
     if (this.settings.syncOnStartup === 'true') {
       syncArticlesCommand.callback();

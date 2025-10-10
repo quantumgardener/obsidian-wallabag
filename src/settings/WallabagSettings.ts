@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: WallabagSettings = {
   syncOnStartup: 'false',
   syncArchived: 'false',
   syncUnRead: 'true',
-  tagFormat: 'csv',
+  tagFormat: 'list',
   unreadFolder: '',
   archivedFolder: '',
   syncedArticles: '[]',

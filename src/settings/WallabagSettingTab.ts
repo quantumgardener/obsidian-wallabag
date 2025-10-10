@@ -174,11 +174,13 @@ export class WallabagSettingTab extends PluginSettingTab {
       .setDesc(
         sanitizeHTMLToDom(
           'Determines how the tags will be populated in the created note. <br>' +
+            'List: the current Obsidian standard for hashtags existing in the properties list. <br>' +          
             'CSV: Comma-separeted tags e.g. <code>tag1, tag2, tag3</code> <br>' +
             'Hashtags: Space-separeted hashtags<code>#tag1 #tag2 #tag3</code> <br>'
         )
       )
       .addDropdown(async (dropdown) => {
+        dropdown.addOption('list', 'List');
         dropdown.addOption('csv', 'CSV');
         dropdown.addOption('hashtag', 'Hashtags');
         dropdown.setValue(this.plugin.settings.tagFormat);

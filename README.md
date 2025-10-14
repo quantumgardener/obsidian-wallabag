@@ -13,7 +13,7 @@ Read the [full documentation](https://quantumgardener.info/notes/obsidian-wallab
 > The sync process from Wallabag can take a few minutes. If your Wallabag account has a lot saved, (both read and unread) this will also mean a lot of notes filling your vault.
 
 
->[!tip] KNOWN ISSUES:
+> [!tip]
 >
 >  KNOWN ISSUES:
 >

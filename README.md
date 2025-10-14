@@ -4,7 +4,9 @@ This plugin for [Obsidian](https://obsidian.md) allows you to sync [Wallabag](ht
 
 Read the [full documentation](https://quantumgardener.info/notes/obsidian-wallabag-(plugin))
 
->[!note] Important details:
+>[!note] 
+>
+> Important details:
 >
 > There is a note template file provided that provides a wide range of Properties metadata for synced articles.
 > 
@@ -12,6 +14,8 @@ Read the [full documentation](https://quantumgardener.info/notes/obsidian-wallab
 
 
 >[!tip] KNOWN ISSUES:
+>
+>  KNOWN ISSUES:
 >
 > Many blogs and articles use a colon in their titles. When passed to the 'title' property in the metadata, this will cause an error for the metadata section entirely. The colon will need to be removed for the metadata in that article note to be usable.
 > 

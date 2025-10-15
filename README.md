@@ -3,15 +3,17 @@
 This plugin for [Obsidian](https://obsidian.md) allows you to sync [Wallabag](https://www.wallabag.it/en) items into Obsidian notes in various ways. It works with the official [hosted Wallabag environment](https://wallabag.it/), or your self-hosted version. The plugin is hosted at https://github.com/quantumgardener/obsidian-wallabag.
 
 
->[!note] Note
+>[!note] 
 >
 > There is a note template file provided that provides a wide range of Properties metadata for synced articles.
 > 
 > The sync process from Wallabag can take a few minutes. If your Wallabag account has a lot saved, (both read and unread) this will also mean a lot of notes filling your vault.
 
 
-> [!tip] Known Issues
+> [!tip] 
 >
+> *Known Issues* 
+> 
 > Many blogs and articles use a colon in their titles. When passed to the 'title' property in the metadata, this will cause an error for the metadata section entirely. The colon will need to be removed for the metadata in that article note to be usable.
 > 
 > To quickly find files experiencing this error, create an Obsidian Base with the columns: file name, Title, and a Formula column that uses title.isEmpty() in the formula box. This will give you a table that you can sort according to those articles where the title property is 'empty' because it is experiencing this error.
@@ -169,6 +171,17 @@ Property values with `'`, `:` or `?` will confuse Obsidian's parsing of the YAML
 ```
 ---
 title: "{{article_title}}"
+---
+```
+
+##### Extra tags
+When using the `List` format for tags, if you want add additional tags beyond what's in Wallabag, set your template up like this.
+
+```
+---
+tags: {{tags}}
+  - extra_tag1
+  - extra_tag2
 ---
 ```
 

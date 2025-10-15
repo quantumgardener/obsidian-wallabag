@@ -65,7 +65,7 @@ export default class NoteTemplate {
   private formatTags(tags: string[], tagFormat: string): string {
     switch (tagFormat) {
     case 'list':
-      return tags.map((tag) => `\n  - ${tag}`).join(' ');      
+      return tags.map((tag) => `\n  - ${tag}`).join(' ');
     case 'csv':
       return tags.join(', ');
     case 'hashtag':

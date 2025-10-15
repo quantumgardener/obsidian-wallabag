@@ -19,7 +19,15 @@ export default class SyncArticlesCommand implements Command {
     // Force a reading of the settings file again. It will have been read when the plugin
     // first loaded. But the sync of data.json from Obsidian sync is likely to occur after that.
     await this.plugin.loadSettings();
-    let syncedArticles = JSON.parse(this.plugin.settings.syncedArticles);
+    console.log('start');
+    let syncedArticles = [];
+    try {
+      syncedArticles = JSON.parse(this.plugin.settings.syncedArticles);
+    } catch (error) {
+      console.error(error);
+      console.error("Likely malformed value. Should be '[]'");
+    }
+
 
     // Check if the old file containing a list of synced article IDs still exists. We need to integrate
     // it into the new plugin settings value and clean up.

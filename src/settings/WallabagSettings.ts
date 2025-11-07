@@ -18,7 +18,9 @@ export interface WallabagSettings {
   syncedArticles: string;
   linkPublishedBy: string;
   wallabagIDFieldName: string;
- wallabagURLFieldName: string;
+  wallabagURLFieldName: string;
+  single_annotation_marker: string;
+  all_annotations_marker: string;
 }
 
 export const DEFAULT_SETTINGS: WallabagSettings = {
@@ -41,5 +43,7 @@ export const DEFAULT_SETTINGS: WallabagSettings = {
   syncedArticles: '[]',
   linkPublishedBy: 'true',
   wallabagIDFieldName: 'wallabag_id',
-  wallabagURLFieldName: 'wallabag_url'
+  wallabagURLFieldName: 'wallabag_url',
+  single_annotation_marker: '',
+  all_annotations_marker: '',
 };

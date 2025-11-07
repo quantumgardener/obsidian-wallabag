@@ -221,6 +221,21 @@ export class WallabagSettingTab extends PluginSettingTab {
       set: this.updateSetting('wallabagURLFieldName')
     });
 
+    this.addTextSettingHere({
+      name: 'Single annotation marker',
+      desc: 'Freeform text added after every single annotation. Use # to add an inline Obsidian tag. Space separate multiple tags.',
+      get: () => this.plugin.settings.single_annotation_marker,
+      set: this.updateSetting('single_annotation_marker')
+    });
+
+    this.addTextSettingHere({
+      name: 'All annotations marker',
+      desc: 'Text included after all annotations if one or more annotations is present. Use # to add inline Obsidian tag. Space separate multiple tags.',
+      get: () => this.plugin.settings.all_annotations_marker,
+      set: this.updateSetting('all_annotations_marker')
+    });
+
+
     this.containerEl.createEl('h2', { text: 'Export as PDF' });
 
     new Setting(this.containerEl)

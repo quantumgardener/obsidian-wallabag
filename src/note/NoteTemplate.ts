@@ -13,7 +13,13 @@ export default class NoteTemplate {
 
   fill(wallabagArticle: WallabagArticle, serverBaseUrl: string, convertHtmlToMarkdown: string, tagFormat: string, pdfLink = ''): string {
     const content = wallabagArticle.content !== null ? wallabagArticle.content : '';
-    const annotations = wallabagArticle.annotations.map((a) => '> ' + a.quote + (a.text ? '\n\n' + a.text : '')).join('\n\n');
+    let annotations = '';
+    const single_annotation_marker = this.plugin.settings.single_annotation_marker;
+    annotations = wallabagArticle.annotations.map((a) => '> ' + a.quote + (a.text ? '\n\n' + a.text : '') + (single_annotation_marker ? ' ' + single_annotation_marker : '')).join('\n\n');
+    if (wallabagArticle.annotations.length > 0) {
+      annotations = `${annotations}\n\n${this.plugin.settings.all_annotations_marker}`;
+    }
+
     let publishedBy = '';
     let publishedByList = '';
     try {

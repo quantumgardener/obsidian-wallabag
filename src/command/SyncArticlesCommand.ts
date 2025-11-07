@@ -25,7 +25,7 @@ export default class SyncArticlesCommand implements Command {
       syncedArticles = JSON.parse(this.plugin.settings.syncedArticles);
     } catch (error) {
       console.error(error);
-      console.error("Likely malformed value. Should be '[]'");
+      console.error('Likely malformed value. Should be \'[]\'');
     }
 
 

@@ -57,7 +57,7 @@ export class WallabagSettingTab extends PluginSettingTab {
       .setName('Article note template file')
       .setDesc(sanitizeHTMLToDom(
         'The template file that will be used for the new articles.<br> ' +
-        'See <a href="https://github.com/quantumgardener/obsidian-wallabag">documentation</a> for examples.'
+        'See <a href="https://github.com/quantumgardener/obsidian-wallabag/wiki">documentation</a> for examples.'
       ))
       .addSearch((cb) => {
         new FileSuggest(this.app, cb.inputEl);

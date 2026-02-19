@@ -14,7 +14,7 @@ export default class DeleteWallabagArticleCommand implements Command {
   }
 
   async callback() {
-    const notice = new Notice('Delete article from Wallabag.');
+    const notice = new Notice('The selected article will be deleted.');
     const currentNote = this.plugin.app.workspace.getActiveFile();
     if (currentNote instanceof TFile) {
       // Get Wallabag ID from frontmatter in file.
@@ -22,33 +22,33 @@ export default class DeleteWallabagArticleCommand implements Command {
       const wallabagIDFieldName = this.plugin.settings.wallabagIDFieldName;
       let wallabag_id = parseFrontMatterEntry(cmeta?.frontmatter, wallabagIDFieldName);
       if (wallabag_id === null) {
-        new Notice('Error: Wallabag ID not found in frontmatter. Please see plugin docs.');
+        new Notice(`The ${wallabagIDFieldName} in this note's frontmatter is missing.`);
         notice.hide();
         return;
       }
       wallabag_id = Number(wallabag_id);
       if (isNaN(wallabag_id) || wallabag_id === 0) {
-        new Notice('Error: Wallabag ID frontmatter doesn\'t seem to be a valid number.');
+        new Notice(`The ${wallabagIDFieldName} in this note's frontmatter isn't a valid number.`);
         notice.hide();
         return;
       }
 
       try {
         await this.plugin.api.deleteArticle(wallabag_id);
-        new Notice('Article has been deleted from Wallabag');
+        new Notice('The article has been deleted from Wallabag.');
         await removeSyncedArticle(wallabag_id, this.plugin);
         const wallabagURLFieldName = this.plugin.settings.wallabagURLFieldName;
-        this.plugin.app.fileManager.processFrontMatter(currentNote, (frontmatter) => {
+        void this.plugin.app.fileManager.processFrontMatter(currentNote, (frontmatter) => {
           delete frontmatter[wallabagIDFieldName];
           delete frontmatter[wallabagURLFieldName];
         });
       } catch (err) {
-        console.log(err);
-        new Notice(`Article was not deleted. Could not find article ${wallabag_id}`, 5000);
+        console.error(err);
+        new Notice(`The article was not deleted as I could not find article ${wallabag_id}`, 5000);
       }
 
     } else {
-      new Notice('Error: Current item is not a note.');
+      new Notice('The currently selected item is not a note.');
     }
     notice.hide();
   }

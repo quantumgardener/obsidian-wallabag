@@ -27,7 +27,7 @@ export default class NoteTemplate {
         .filter(pb => pb !== '') // Filter out unknown or unspecified authors
         .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `"[[${pb}]]"` : `${pb}`)
         .join(',');
-    } catch (error) {
+    } catch {
       publishedBy = '';
     }
     try {
@@ -35,7 +35,7 @@ export default class NoteTemplate {
         .filter(pb => pb !== '') // Filter out unknown or unspecified authors
         .map(pb => this.plugin.settings.linkPublishedBy === 'true' ? `  - "[[${pb}]]"` : `  - ${pb}`)
         .join('\n');
-    } catch (error) {
+    } catch {
       publishedByList = '';
     }
     const variables: { [key: string]: string } = {

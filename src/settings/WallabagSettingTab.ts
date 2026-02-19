@@ -2,7 +2,7 @@ import WallabagPlugin from 'main';
 import { App, Notice, PluginSettingTab, sanitizeHTMLToDom, Setting } from 'obsidian';
 import WallabagAPI from 'wallabag/WallabagAPI';
 import { WallabagSettings } from './WallabagSettings';
-import { FileSuggest, FolderSuggest } from '../suggests/file-suggest';
+import { FileSuggest, FolderSuggest } from 'suggests/suggest';
 
 export interface TextSetting {
   name: string;
@@ -69,7 +69,9 @@ export class WallabagSettingTab extends PluginSettingTab {
       });
 
 
-    this.containerEl.createEl('h2', { text: 'Sync Behavior' });
+    new Setting(this.containerEl)
+      .setName('Sync behaviour')
+      .setHeading();
 
     new Setting(this.containerEl)
       .setName('Sync on startup')
@@ -145,11 +147,13 @@ export class WallabagSettingTab extends PluginSettingTab {
         });
       });
 
-    this.containerEl.createEl('h2', { text: 'Obsidian note creation' });
+    new Setting(this.containerEl)
+      .setName('Obsidian note creation')
+      .setHeading();
 
     new Setting(this.containerEl)
-      .setName('Convert HTML Content extracted by Wallabag to Markdown')
-      .setDesc('If enabled the content of the Wallabag article will be converted to markdown before being used for the new article.')
+      .setName('Convert HTML Content extracted by wallabag to markdown')
+      .setDesc('If enabled the content of the wallabag article will be converted to markdown before being used for the new article.')
       .addToggle(async (toggle) => {
         toggle.setValue(this.plugin.settings.convertHtmlToMarkdown === 'true');
         toggle.onChange(async (value) => {
@@ -192,7 +196,7 @@ export class WallabagSettingTab extends PluginSettingTab {
 
 
     new Setting(this.containerEl)
-      .setName('Link Published By')
+      .setName('Link published by')
       .setDesc(
         sanitizeHTMLToDom(
           'Add [[ ]] around each author\'s name to allow linking from Obsidian Properties. <br/>' +
@@ -208,14 +212,14 @@ export class WallabagSettingTab extends PluginSettingTab {
       });
 
     this.addTextSettingHere({
-      name: 'Wallabag ID Property',
+      name: 'Wallabag ID property',
       desc: 'The name of the property you use to store the Wallabag article ID. Used for delete. (Default: wallabag_id)',
       get: () => this.plugin.settings.wallabagIDFieldName,
       set: this.updateSetting('wallabagIDFieldName')
     });
 
     this.addTextSettingHere({
-      name: 'Wallabag URL Property',
+      name: 'Wallabag URL property',
       desc: 'The name of the property you use to store the Wallabag article URL (if in use by your template). Used for delete. (Default: wallabag_url)',
       get: () => this.plugin.settings.wallabagURLFieldName,
       set: this.updateSetting('wallabagURLFieldName')
@@ -236,11 +240,13 @@ export class WallabagSettingTab extends PluginSettingTab {
     });
 
 
-    this.containerEl.createEl('h2', { text: 'Export as PDF' });
+    new Setting(this.containerEl)
+      .setName('Export as PDF')
+      .setHeading();
 
     new Setting(this.containerEl)
       .setName('Export as PDF')
-      .setDesc('If enabled synced articles will be exported as PDFs.')
+      .setDesc('If enabled synced articles will be exported as pdfs.')
       .addToggle(async (toggle) => {
         toggle.setValue(this.plugin.settings.downloadAsPDF === 'true').onChange(async (value) => {
           this.plugin.settings.downloadAsPDF = String(value);
@@ -252,8 +258,8 @@ export class WallabagSettingTab extends PluginSettingTab {
     const pdfSettingsClass = this.plugin.settings.downloadAsPDF !== 'true' ? 'wallabag-setting-hidden' : 'wallabag-pdf-setting';
 
     new Setting(this.containerEl)
-      .setName('PDF Folder')
-      .setDesc('The folder exported PDFs will be downloaded.')
+      .setName('PDF folder')
+      .setDesc('The folder exported pdfs will be downloaded.')
       .setClass(pdfSettingsClass)
       .addSearch((cb) => {
         new FolderSuggest(this.app, cb.inputEl);
@@ -267,7 +273,7 @@ export class WallabagSettingTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName('Create note')
       .setDesc(
-        'If enabled a note will be created in the article note folder for each article exported as pdf. Article note template will be used if specified.'
+        'If create note is enabled a note will be created in the article note folder for each article exported as pdf and the article note template will be used if specified.'
       )
       .setClass(pdfSettingsClass)
       .addToggle(async (toggle) => {
@@ -286,7 +292,7 @@ export class WallabagSettingTab extends PluginSettingTab {
       .setName(setting.name)
       .setDesc(setting.desc)
       .addText((text) => {
-        text.setValue(setting.get()).onChange(async (value) => {
+        text.setValue(setting.get()).onChange((value) => {
           setting.set(value);
         });
       });
@@ -303,7 +309,7 @@ export class WallabagSettingTab extends PluginSettingTab {
     (key: keyof WallabagSettings): ((v: string | number[]) => void) =>
       async (v: string | number[]) => {
         if (typeof v === 'string') {
-          this.plugin.settings[key] = v as string;
+          this.plugin.settings[key] = v;
         } else if (Array.isArray(v) && v.every(item => typeof item === 'number')) {
           this.plugin.settings[key] = JSON.stringify(v);
         } else {
@@ -313,7 +319,9 @@ export class WallabagSettingTab extends PluginSettingTab {
       };
 
   private authenticationSettings() {
-    this.containerEl.createEl('h2', { text: 'Authentication' });
+    new Setting(this.containerEl)
+      .setName('Authentication')
+      .setHeading();
 
     let clientId = '',
       clientSecret = '',
@@ -368,7 +376,7 @@ export class WallabagSettingTab extends PluginSettingTab {
             await this.plugin.onLogout();
             this.display();
           } else {
-            const notice = new Notice('Authenticating with Wallabag...');
+            const notice = new Notice('Attempting to authenticate with wallabag.');
             try {
               await WallabagAPI.authenticate(this.plugin.settings.serverUrl, clientId, clientSecret, username, password).then(async (token) => {
                 await this.plugin.onAuthenticated(token);
@@ -376,7 +384,7 @@ export class WallabagSettingTab extends PluginSettingTab {
                 notice.setMessage('Authenticated with Wallabag.');
               });
             } catch (error) {
-              console.log(error);
+              console.debug(error);
               notice.setMessage('Authentication with Wallabag failed.');
             }
           }

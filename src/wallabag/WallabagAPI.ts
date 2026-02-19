@@ -2,6 +2,30 @@ import WallabagPlugin from 'main';
 import { Notice, request, requestUrl, RequestUrlResponse } from 'obsidian';
 import { Token } from './WallabagAuth';
 
+interface WallabagTagRaw {
+  slug: string;
+}
+
+interface WallabagArticleRaw {
+  id: number;
+  tags: WallabagTagRaw[];
+  title: string;
+  url: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  published_at: string;
+  reading_time: string;
+  preview_picture: string;
+  domain_name: string;
+  annotations: WallabagAnnotation[];
+  is_archived: boolean;
+  is_starred: boolean;
+  given_url: string;
+  published_by: string[];
+}
+
+
 interface WallabagAnnotation {
   user: string;
   annotator_schema_version: string;
@@ -94,8 +118,8 @@ export default class WallabagAPI {
     });
   }
 
-  private convertWallabagArticle(article: any) {
-    const getTag = (tag: any) => (tag['slug'].startsWith('t:') ? tag['slug'].substring(2) : tag['slug']);
+  private convertWallabagArticle(this:void, article: WallabagArticleRaw) {
+    const getTag = (tag: WallabagTagRaw) => (tag['slug'].startsWith('t:') ? tag['slug'].substring(2) : tag['slug']);
     return {
       id: article['id'],
       tags: article['tags'].map(getTag),
@@ -117,12 +141,15 @@ export default class WallabagAPI {
   }
 
   private convertWallabagArticlesResponse(response: RequestUrlResponse): WallabagArticlesResponse {
+    const items = response.json._embedded.items as WallabagArticleRaw[];
+
     return {
-      page: response.json['page'],
-      pages: response.json['pages'],
-      articles: response.json['_embedded']['items'].map(this.convertWallabagArticle),
+      page: response.json.page,
+      pages: response.json.pages,
+      articles: items.map(a => this.convertWallabagArticle(a)),
     };
   }
+
 
   private async tokenRefreshingFetch(url: string, method?: string, body?: string): Promise<RequestUrlResponse> {
     return requestUrl({
@@ -135,11 +162,11 @@ export default class WallabagAPI {
       body: body,
     }).catch(async (reason) => {
       if (reason.message.includes('ERR_NAME_NOT_RESOLVED')) {
-        console.log(`DNS resolution failed. Invalid URL ${url} or network issue.`);
-        new Notice('Sync failed. Invalid Server URL or network issue.\n\nPlease check Server URL in settings.', 5000);
+        console.error(`DNS resolution failed. Invalid URL ${url} or network issue.`);
+        new Notice('Sync failed. Invalid server URL or network issue.\n\nPlease check server URL in settings.', 5000);
         throw new Error('');
       } else if (reason.status === 401) {
-        console.log('Likely the token expired, refreshing it.');
+        console.debug('Likely the token expired, refreshing it.');
         return await this.refresh()
           .then(async (token) => {
             this.token = token;
@@ -147,15 +174,15 @@ export default class WallabagAPI {
             return this.tokenRefreshingFetch(url);
           })
           .catch(async (reason) => {
-            console.log('Token refresh failed.', reason);
+            console.error('Token refresh failed.', reason);
             await this.plugin.onTokenRefreshFailed();
             throw new Error('');
           });
       } else if (reason.status === 404) {
-        console.log('Article not found');
+        console.error('Article not found');
         throw new Error('404 error');
       } else {
-        console.log(`Something else failed ${reason}`);
+        console.error(`Something else failed ${reason}`);
         throw new Error('');
       }
     });

@@ -22,30 +22,30 @@ export default class DeleteEverywhereCommand implements Command {
       const wallabagIDFieldName = this.plugin.settings.wallabagIDFieldName;
       let wallabag_id = parseFrontMatterEntry(cmeta?.frontmatter, wallabagIDFieldName);
       if (wallabag_id === null) {
-        new Notice('Error: Wallabag ID not found in frontmatter. Please see plugin docs.');
+        new Notice(`The ${wallabagIDFieldName} in this note's frontmatter is missing.`);
         notice.hide();
         return;
       }
       wallabag_id = Number(wallabag_id);
       if (isNaN(wallabag_id) || wallabag_id === 0) {
-        new Notice('Error: Wallabag ID frontmatter doesn\'t seem to be a valid number.');
+        new Notice(`The ${wallabagIDFieldName} in this note's frontmatter isn't a valid number.`);
         notice.hide();
         return;
       }
 
       try {
         await this.plugin.api.deleteArticle(wallabag_id);
-        new Notice('Article has been deleted from Wallabag');
+        new Notice('The article has been deleted from Wallabag.');
         await removeSyncedArticle(wallabag_id, this.plugin);
-        await this.plugin.app.vault.trash(currentNote, false);
+        await this.plugin.app.fileManager.trashFile(currentNote);
         new Notice('Note is deleted from Obsidian');
       } catch (err) {
-        console.log(err);
+        console.error(err);
         new Notice(`Article was not deleted. Could not find article ${wallabag_id}`, 5000);
       }
 
     } else {
-      new Notice('Error: Current item is not a note.');
+      new Notice('The currently selected item is not a note.');
     }
     notice.hide();
   }

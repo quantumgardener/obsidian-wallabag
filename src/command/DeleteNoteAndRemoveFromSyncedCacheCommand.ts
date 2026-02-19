@@ -22,23 +22,23 @@ export default class DeleteNoteAndRemoveFromSyncedCacheCommand implements Comman
       const wallabagIDFieldName = this.plugin.settings.wallabagIDFieldName;
       let wallabag_id = parseFrontMatterEntry(cmeta?.frontmatter, wallabagIDFieldName);
       if (wallabag_id === null) {
-        new Notice('Error: Wallabag ID not found in frontmatter. Please see plugin docs.');
+        new Notice(`The ${wallabagIDFieldName} in this note's frontmatter is missing.`);
         notice.hide();
         return;
       }
       wallabag_id = Number(wallabag_id);
       if (isNaN(wallabag_id) || wallabag_id === 0) {
-        new Notice('Error: Wallabag ID frontmatter doesn\'t seem to be a valid number.');
+        new Notice(`The ${wallabagIDFieldName} in this note's frontmatter is missing.`);
         notice.hide();
         return;
       }
 
       await removeSyncedArticle(wallabag_id, this.plugin);
 
-      await this.plugin.app.vault.trash(currentNote, false);
+      await this.plugin.app.fileManager.trashFile(currentNote);
       new Notice('Note is moved to trash and removed from synced articles cache.');
     } else {
-      new Notice('Error: Current item is not a note.');
+      new Notice('The currently selected item is not a note.');
     }
     notice.hide();
   }

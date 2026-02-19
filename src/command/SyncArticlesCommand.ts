@@ -19,7 +19,7 @@ export default class SyncArticlesCommand implements Command {
     // Force a reading of the settings file again. It will have been read when the plugin
     // first loaded. But the sync of data.json from Obsidian sync is likely to occur after that.
     await this.plugin.loadSettings();
-    console.log('start');
+    console.debug('start');
     let syncedArticles = [];
     try {
       syncedArticles = JSON.parse(this.plugin.settings.syncedArticles);
@@ -34,7 +34,7 @@ export default class SyncArticlesCommand implements Command {
     const exists = await this.plugin.app.vault.adapter.exists(this.syncedFilePath);
     if (exists) {
       // Read the contents of the file. The form is [id,id,id,...]
-      console.log(`[Wallabag] ${this.syncedFilePath} found. Embedding into data.json and deleting.`);
+      console.debug(`[Wallabag] ${this.syncedFilePath} found. Embedding into data.json and deleting.`);
       const previouslySynced = await this.plugin.app.vault.adapter.read(this.syncedFilePath).then(JSON.parse);
 
       // Add each id from the old file to the current list of synced articles. Use a set to ensure uniqueness
@@ -100,13 +100,13 @@ export default class SyncArticlesCommand implements Command {
     if (exists) {
       new Notice(`File ${filename} already exists. Skipping..`);
     } else {
-      this.plugin.app.vault.create(filename, content);
+      await this.plugin.app.vault.create(filename, content);
     }
   }
 
   async callback() {
     if (!this.plugin.authenticated) {
-      new Notice('Please authenticate with Wallabag first.');
+      new Notice('Please authenticate with wallabag first.');
       return;
     } else if (this.plugin.settings.syncUnRead === 'false' && this.plugin.settings.syncArchived === 'false') {
       new Notice('Please select at least one type of article to sync.');
@@ -115,7 +115,7 @@ export default class SyncArticlesCommand implements Command {
 
     const previouslySynced = await this.readSynced();
 
-    const fetchNotice = new Notice('Syncing from Wallabag..');
+    const fetchNotice = new Notice('Syncing from wallabag has started.');
 
     const articles = await this.plugin.api.fetchArticles(
       this.plugin.settings.syncUnRead === 'true' ? true : false,

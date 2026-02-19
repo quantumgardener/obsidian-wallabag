@@ -27,11 +27,11 @@ export default class WallabagPlugin extends Plugin {
     this.addCommand(new DeleteEverywhereCommand(this));
 
     if (this.settings.syncOnStartup === 'true') {
-      syncArticlesCommand.callback();
+      await syncArticlesCommand.callback();
     }
 
     // This creates an icon in the left ribbon.
-    this.addRibbonIcon('sheets-in-box', 'Sync Wallabag articles', () => syncArticlesCommand.callback());
+    this.addRibbonIcon('sheets-in-box', 'Sync wallabag articles', () => syncArticlesCommand.callback());
   }
 
   private async init() {
@@ -53,7 +53,7 @@ export default class WallabagPlugin extends Plugin {
         this.api = new WallabagAPI(token, this);
         this.authenticated = true;
       } else {
-        new Notice('Please authenticate with Wallabag to start syncing.');
+        new Notice('Please authenticate with wallabag to start syncing.');
       }
     });
   }

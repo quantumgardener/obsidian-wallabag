@@ -35,7 +35,7 @@ export default class DeleteWallabagArticleCommand implements Command {
 
       try {
         await this.plugin.api.deleteArticle(wallabag_id);
-        new Notice('The article has been deleted from Wallabag.');
+        new Notice('The article has been deleted from wallabag.');
         await removeSyncedArticle(wallabag_id, this.plugin);
         const wallabagURLFieldName = this.plugin.settings.wallabagURLFieldName;
         void this.plugin.app.fileManager.processFrontMatter(currentNote, (frontmatter) => {

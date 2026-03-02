@@ -152,7 +152,7 @@ export class WallabagSettingTab extends PluginSettingTab {
       .setHeading();
 
     new Setting(this.containerEl)
-      .setName('Convert HTML Content extracted by wallabag to markdown')
+      .setName('Convert HTML content extracted by wallabag to markdown')
       .setDesc('If enabled the content of the wallabag article will be converted to markdown before being used for the new article.')
       .addToggle(async (toggle) => {
         toggle.setValue(this.plugin.settings.convertHtmlToMarkdown === 'true');
@@ -246,7 +246,7 @@ export class WallabagSettingTab extends PluginSettingTab {
 
     new Setting(this.containerEl)
       .setName('Export as PDF')
-      .setDesc('If enabled synced articles will be exported as pdfs.')
+      .setDesc('If enabled synced articles will be exported as PDFs.')
       .addToggle(async (toggle) => {
         toggle.setValue(this.plugin.settings.downloadAsPDF === 'true').onChange(async (value) => {
           this.plugin.settings.downloadAsPDF = String(value);
@@ -259,7 +259,7 @@ export class WallabagSettingTab extends PluginSettingTab {
 
     new Setting(this.containerEl)
       .setName('PDF folder')
-      .setDesc('The folder exported pdfs will be downloaded.')
+      .setDesc('The folder exported PDFss will be downloaded.')
       .setClass(pdfSettingsClass)
       .addSearch((cb) => {
         new FolderSuggest(this.app, cb.inputEl);
@@ -381,7 +381,7 @@ export class WallabagSettingTab extends PluginSettingTab {
               await WallabagAPI.authenticate(this.plugin.settings.serverUrl, clientId, clientSecret, username, password).then(async (token) => {
                 await this.plugin.onAuthenticated(token);
                 this.display();
-                notice.setMessage('Authenticated with Wallabag.');
+                notice.setMessage('Authenticated with wallabag.');
               });
             } catch (error) {
               console.debug(error);

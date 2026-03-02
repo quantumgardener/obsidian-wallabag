@@ -35,7 +35,7 @@ export default class DeleteEverywhereCommand implements Command {
 
       try {
         await this.plugin.api.deleteArticle(wallabag_id);
-        new Notice('The article has been deleted from Wallabag.');
+        new Notice('The article has been deleted from wallabag.');
         await removeSyncedArticle(wallabag_id, this.plugin);
         await this.plugin.app.fileManager.trashFile(currentNote);
         new Notice('Note is deleted from Obsidian');
